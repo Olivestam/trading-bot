@@ -170,8 +170,9 @@ def start_up_data(stock_client, stocks):
     end_date = get_previous_business_day(datetime.now())
     start_date = end_date - timedelta(days=1)
     for stock in stocks:
-        request_params = StockBarsRequest(symbol_or_symbols=[stock], timeframe=TimeFrame.Minute, start=start_date, end=end_date)
+        request_params = StockBarsRequest(symbol_or_symbols=[stock], timeframe=TimeFrame.Hour, start=start_date, end=end_date)
         bars = stock_client.get_stock_bars(request_params)
+        print(bars)
         if (stock in bars.data):
             df = pd.DataFrame(bars[stock])
             df = df.map(lambda x: x[1]) 
@@ -181,7 +182,8 @@ def start_up_data(stock_client, stocks):
 
 # Handler for when stock data is received from the WebSocket
 async def stock_data_handler(data):
-    handle_data(data)
+    #handle_data(data)
+    print(data)
 
 async def trade_update_handler(data):
     print(f"Trade update received: {data}")
@@ -206,8 +208,8 @@ def run_trading_bot():
     signal.signal(signal.SIGINT, signal_handler)
 
     print("Starting trading bot...")
-    stock_data_stream.subscribe_bars(stock_data_handler, *stocks)
-    trading_stream.subscribe_trade_updates(trade_update_handler)
+    stock_data_stream.subscribe_bars(stock_data_handler, "*")
+    #trading_stream.subscribe_trade_updates(trade_update_handler)
     try:
         stock_data_stream.run() 
         trading_stream.run()

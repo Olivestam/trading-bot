@@ -1,19 +1,18 @@
-#from handlers.data_handler import handle_new_data
-from services.alpaca_service import add_historical_data, get_stocks
-from data.buffer import StockDataBuffer
+from services.alpaca_service import add_historical_data, start_data_stream
 from config import ENV
+import asyncio
 
 def main():
     print("Starting trading bot...")
-    buffer = StockDataBuffer(window_size=20)
-
-    stocks = get_stocks()
-
-    if ENV == "dev":
-        historical_data = add_historical_data(buffer)
-        
-    #start_data_stream(lambda data: handle_new_data(data, buffer))
-
-
+    """ if ENV == "dev":
+        add_historical_data() """
+    # Om ingen loop är igång, skapa en ny loop
+    try:
+        loop = asyncio.get_event_loop()
+        loop.create_task(start_data_stream())  # Lägg till korutinen på den aktiva loopen
+    except RuntimeError:  # Om ingen loop är igång, skapa en ny loop
+        loop = asyncio.new_event_loop()  # Skapa en ny event loop
+        asyncio.set_event_loop(loop)  # Sätt den som aktiv
+        loop.run_until_complete(start_data_stream())  # Kör korutinen
 if __name__ == "__main__":
     main()

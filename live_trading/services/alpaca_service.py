@@ -4,8 +4,8 @@ from handlers.data_handler import handle_new_bar
 from alpaca.data.live import StockDataStream
 from alpaca.data.timeframe import TimeFrame
 from datetime import datetime, timedelta
-from data.buffer import StockDataBuffer
 from config import API_KEY, SECRET_KEY
+from data.buffer import buffer
 import pandas as pd
 
 def get_previous_business_day(current_date):
@@ -23,7 +23,8 @@ def get_stocks():
     stocks.append("SPY")  # Add S&P 500 ETF to the list of stocks, (used for creating features)
     return stocks
 
-def add_historical_data(buffer: StockDataBuffer):
+def add_historical_data():
+    print("Loading historical data...")
     stock_client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
     end_date = get_previous_business_day(datetime.now())
     start_date = end_date - timedelta(days=1)
@@ -33,10 +34,11 @@ def add_historical_data(buffer: StockDataBuffer):
         bars = stock_client.get_stock_bars(request_params)
         if (stock in bars.data):
             for bar in bars[stock]:
-                print(bar)
                 buffer.add(stock, bar)
 
 async def start_data_stream():
+    print("Starting stream...")
     stream = StockDataStream(API_KEY, SECRET_KEY)
     stocks = get_stocks()
     await stream.subscribe_bars(handle_new_bar, *stocks)
+    await stream.run()

@@ -25,3 +25,5 @@ class StockDataBuffer:
         if symbol not in self.buffers:
             return pd.DataFrame()
         return pd.DataFrame(list(self.buffers[symbol]))
+    
+buffer = StockDataBuffer()

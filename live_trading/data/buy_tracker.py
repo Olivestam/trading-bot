@@ -26,3 +26,5 @@ class BuyTracker:
         if self.current_date != current_day:
             self.reset_buy_counts()
             self.current_date = current_day
+
+buy_tracker = BuyTracker()

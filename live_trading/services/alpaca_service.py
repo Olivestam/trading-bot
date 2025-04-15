@@ -1,12 +1,13 @@
+from handlers.data_handler import handle_new_bar, process_bars
 from alpaca.data import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
-from handlers.data_handler import handle_new_bar
 from alpaca.data.live import StockDataStream
 from alpaca.data.timeframe import TimeFrame
 from datetime import datetime, timedelta
 from config import API_KEY, SECRET_KEY
 from data.buffer import buffer
 import pandas as pd
+import asyncio
 
 def get_previous_business_day(current_date):
     if current_date.weekday() == 0: # If today is Monday, move back to the previous Friday
@@ -40,5 +41,6 @@ async def start_data_stream():
     print("Starting stream...")
     stream = StockDataStream(API_KEY, SECRET_KEY)
     stocks = get_stocks()
-    await stream.subscribe_bars(handle_new_bar, *stocks)
-    await stream.run()
+    stream.subscribe_bars(handle_new_bar, *stocks)
+    asyncio.create_task(process_bars())
+    await stream._run_forever()

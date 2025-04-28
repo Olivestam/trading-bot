@@ -51,8 +51,7 @@ def feature_engineering(df: pd.DataFrame, df_sp: pd.DataFrame):
     df = add_technical_indicators(df)
     df = add_target_variable(df)
     df = add_sp500_features(df, df_sp)
-    print(df)
-    print(len(df))
-    df = df.dropna()
-    print(len(df))
-    return df
+
+    # Return only latest data
+    latest_idx = df['timestamp'].idxmax()
+    return df.loc[[latest_idx]]

@@ -2,3 +2,4 @@
 /venv
 *.model
 /data
+./live_trading/data/trading_model_2.model

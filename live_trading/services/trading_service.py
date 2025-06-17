@@ -1,12 +1,13 @@
 from alpaca.trading.client import TradingClient
 from alpaca.trading.stream import TradingStream
 from config import API_KEY, SECRET_KEY
+from config import PAPER
 import asyncio
 
-trading_client = TradingClient(API_KEY, SECRET_KEY, paper=True)
-trading_stream = TradingStream(API_KEY, SECRET_KEY, paper=True)
+trading_client = TradingClient(API_KEY, SECRET_KEY, paper=PAPER)
+trading_stream = TradingStream(API_KEY, SECRET_KEY, paper=PAPER)
 
-def get_account_info():
+async def get_account_info():
     account_info = trading_client.get_account()
     return {
         "buying_capacity": account_info.non_marginable_buying_power,
@@ -15,7 +16,7 @@ def get_account_info():
         "trading_blocked": account_info.trading_blocked
     }
 
-def place_buy_order(symbol: str, quantity: int, stock_price: float):
+async def place_buy_order(symbol: str, quantity: int, stock_price: float):
     limit_price = stock_price * 1.001 
     try:
         order = trading_client.limit_order_request(
@@ -32,7 +33,7 @@ def place_buy_order(symbol: str, quantity: int, stock_price: float):
         print(f"[ERROR] Failed to place order for {symbol}: {e}")
         return None
     
-def place_sell_order(symbol: str, quantity: int):
+async def place_sell_order(symbol: str, quantity: int):
     try:
         order = trading_client.market_order(
             symbol=symbol,
@@ -46,10 +47,10 @@ def place_sell_order(symbol: str, quantity: int):
         print(f"[ERROR] Failed to place order for {symbol}: {e}")
         return None
     
-async def handle_trading_update(trading_update):
-    print(f"[TRADING UPDATE] - {trading_update}")
+async def handle_trade_update(trade_update):
+    print(f"[TRADE UPDATE] - {trade_update}")
     
 async def start_trading_stream():
     print("Starting trading stream...")
-    trading_stream.subscribe_trade_updates(handle_trading_update)
-    await trading_stream.run()
+    trading_stream.subscribe_trade_updates(handle_trade_update)
+    await trading_stream._run_forever()

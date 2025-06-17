@@ -3,7 +3,6 @@ import numpy as np
 from data.model import model
 
 def make_prediction(features):
-    print(f"Prediction for {features['symbol']}:")
     X = features.drop(columns=["target", "symbol", "timestamp", "future_close"])
     data = xgb.DMatrix(X)
     pred_prob = model.predict(data)
